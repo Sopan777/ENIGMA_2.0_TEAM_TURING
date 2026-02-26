@@ -2,10 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import Dashboard from './Dashboard';
 function App() {
   // Auth State
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const [isRegistering, setIsRegistering] = useState(false);
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [authSuccess, setAuthSuccess] = useState("");
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   // Navigation State
   const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard | practice | history
@@ -207,14 +211,72 @@ function App() {
     setShowWarningModal(false);
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === '12345678') {
+    setAuthError("");
+    setAuthSuccess("");
+    setIsAuthLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Login failed");
+      }
+
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("userEmail", email);
       setIsLoggedIn(true);
       setAuthError("");
-    } else {
-      setAuthError("Incorrect username or password.");
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setIsAuthLoading(false);
     }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setAuthError("");
+    setAuthSuccess("");
+    setIsAuthLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Registration failed");
+      }
+
+      setAuthSuccess(data.message);
+      setIsRegistering(false);
+      // Do not clear email/password so they can log in easily
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
+    setIsLoggedIn(false);
+    // Reset view
+    setCurrentTab('dashboard');
+    setInterviewState('setup');
   };
 
   if (!isLoggedIn) {
@@ -228,20 +290,39 @@ function App() {
             <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-white/5 font-bold text-lg mb-4 text-slate-900 dark:text-white">
               AI
             </div>
-            <h1 className="text-2xl font-display font-semibold text-slate-900 dark:text-white tracking-tight">Welcome Back</h1>
-            <p className="text-sm text-slate-500 mt-2">Sign in to your InterviewAI account</p>
+            <h1 className="text-2xl font-display font-semibold text-slate-900 dark:text-white tracking-tight">
+              {isRegistering ? "Create your account" : "Welcome Back"}
+            </h1>
+            <p className="text-sm text-slate-500 mt-2">
+              {isRegistering ? "Join InterviewAI today" : "Sign in to your InterviewAI account"}
+            </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={isRegistering ? handleRegister : handleLogin} className="space-y-4">
+            {isRegistering && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 transition-colors"
+                  placeholder="Enter your username"
+                />
+              </div>
+            )}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" htmlFor="username">Username</label>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" htmlFor="email">Email Address</label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 transition-colors"
-                placeholder="Enter your username"
+                placeholder="name@company.com"
               />
             </div>
             <div>
@@ -249,6 +330,7 @@ function App() {
               <input
                 id="password"
                 type="password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 transition-colors"
@@ -263,16 +345,41 @@ function App() {
               </p>
             )}
 
+            {authSuccess && !isRegistering && (
+              <p className="text-xs text-green-500 font-medium flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                {authSuccess} Please sign in below.
+              </p>
+            )}
+
             <button
               type="submit"
-              className="w-full py-3 mt-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm"
+              disabled={isAuthLoading}
+              className="w-full py-3 mt-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm disabled:opacity-70"
             >
-              Sign In
-              <span className="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+              {isAuthLoading ? (
+                <span className="material-symbols-outlined text-[18px] animate-spin">refresh</span>
+              ) : (
+                <>
+                  {isRegistering ? "Create Account" : "Sign In"}
+                  <span className="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+                </>
+              )}
             </button>
           </form>
 
           <div className="mt-8 text-center border-t border-slate-200 dark:border-slate-800 pt-6">
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setAuthError("");
+                setAuthSuccess("");
+              }}
+              className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-medium transition-colors mb-4 block w-full"
+            >
+              {isRegistering ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
+            </button>
             <p className="text-xs text-slate-500">
               By logging in, you agree to our <a href="#" className="underline hover:text-slate-700 dark:hover:text-slate-300">Terms of Service</a> & <a href="#" className="underline hover:text-slate-700 dark:hover:text-slate-300">Privacy Policy</a>
             </p>
@@ -329,14 +436,14 @@ function App() {
             )}
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-white/10 group relative">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold">Alex Rivera</p>
-                <p className="text-xs text-slate-500">Developer</p>
+                <p className="text-sm font-semibold">{localStorage.getItem("userEmail") || "User"}</p>
+                <p className="text-xs text-slate-500">Candidate</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden cursor-pointer">
                 <img alt="User" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBApSeT7iYvc3OqCsUYfd6MfBy7G92Rm-gX3zvG_C4qbuzMbX9wHRQPQ9xVoUFSHAcjiaQ-F6uUocFrzIBrLW0bxhSyiVWwiBzU8lJ2qdu7jRNa--mKc5Asdq8HT7a27O5eINVYveqINAYVwp94yGLZNY1__gpxL1ZGYYCZvzpkOgnpkgG4XAp9cdqaOlwaungF7Bij2m9JcAFpDjKN2bd30He0IEfzlurmAaf4wRPHHUQCskkDJIv96wrUOyu7i1gMrExsidYN1WYd" />
               </div>
               <button
-                onClick={() => setIsLoggedIn(false)}
+                onClick={handleLogout}
                 className="absolute top-10 right-0 mt-2 px-4 py-2 bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg text-xs font-medium text-red-500 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 Log Out
