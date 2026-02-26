@@ -1,0 +1,57 @@
+# --- System Files ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# --- Editor / IDE ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.sln
+*.suo
+*.ntvs*
+*.njsproj
+
+# --- Dependencies & Build ---
+node_modules/
+bower_components/
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# --- Python & Machine Learning (For your AI/ML projects) ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.ipynb_checkpoints/
+data/raw/    # Common practice to ignore large raw datasets
+
+# --- Salesforce Specifics ---
+.sfdx/
+.sf/
+.shellcheckrc
