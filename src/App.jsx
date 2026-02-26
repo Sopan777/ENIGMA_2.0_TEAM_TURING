@@ -1,6 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-
+import Dashboard from './Dashboard';
 function App() {
+  // Auth State
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+
+  // Navigation State
+  const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard | practice | history
+
   const [file, setFile] = useState(null);
   const [parsing, setParsing] = useState(false);
   const [parsedData, setParsedData] = useState(null);
@@ -198,6 +207,81 @@ function App() {
     setShowWarningModal(false);
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (username === 'admin' && password === '12345678') {
+      setIsLoggedIn(true);
+      setAuthError("");
+    } else {
+      setAuthError("Incorrect username or password.");
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center transition-colors duration-300 relative overflow-hidden">
+        <div className="glow-accent top-[-100px] left-[-100px]"></div>
+        <div className="glow-accent bottom-[-100px] right-[-100px] bg-green-500/20 dark:bg-green-500/10"></div>
+
+        <div className="w-full max-w-md p-8 glass-card rounded-3xl shadow-sm bg-white dark:bg-transparent animate-in fade-in slide-in-from-bottom-4 duration-500 z-10 relative">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-white/5 font-bold text-lg mb-4 text-slate-900 dark:text-white">
+              AI
+            </div>
+            <h1 className="text-2xl font-display font-semibold text-slate-900 dark:text-white tracking-tight">Welcome Back</h1>
+            <p className="text-sm text-slate-500 mt-2">Sign in to your InterviewAI account</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" htmlFor="username">Username</label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 transition-colors"
+                placeholder="Enter your username"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-slate-400 dark:focus:border-slate-600 transition-colors"
+                placeholder="••••••••"
+              />
+            </div>
+
+            {authError && (
+              <p className="text-xs text-red-500 font-medium flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">error</span>
+                {authError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3 mt-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm"
+            >
+              Sign In
+              <span className="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+            </button>
+          </form>
+
+          <div className="mt-8 text-center border-t border-slate-200 dark:border-slate-800 pt-6">
+            <p className="text-xs text-slate-500">
+              By logging in, you agree to our <a href="#" className="underline hover:text-slate-700 dark:hover:text-slate-300">Terms of Service</a> & <a href="#" className="underline hover:text-slate-700 dark:hover:text-slate-300">Privacy Policy</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen flex flex-col transition-colors duration-300 overflow-x-hidden relative">
       <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 bg-background-light dark:bg-background-dark">
@@ -211,9 +295,24 @@ function App() {
             </div>
             {interviewState === 'setup' && (
               <div className="hidden md:flex items-center gap-6">
-                <a className="text-sm font-medium hover:text-slate-500 transition-colors text-slate-600 dark:text-slate-400" href="#">Dashboard</a>
-                <a className="text-sm font-medium text-slate-900 dark:text-white" href="#">Practice</a>
-                <a className="text-sm font-medium hover:text-slate-500 transition-colors text-slate-600 dark:text-slate-400" href="#">History</a>
+                <button
+                  onClick={() => setCurrentTab('dashboard')}
+                  className={`text-sm font-medium transition-colors ${currentTab === 'dashboard' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-500'}`}
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => setCurrentTab('practice')}
+                  className={`text-sm font-medium transition-colors ${currentTab === 'practice' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-500'}`}
+                >
+                  Practice
+                </button>
+                <button
+                  onClick={() => setCurrentTab('history')}
+                  className={`text-sm font-medium transition-colors ${currentTab === 'history' ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-500'}`}
+                >
+                  History
+                </button>
               </div>
             )}
             {interviewState === 'active' && (
@@ -228,14 +327,20 @@ function App() {
                 End Session
               </button>
             )}
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-white/10">
+            <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-white/10 group relative">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-semibold">Alex Rivera</p>
                 <p className="text-xs text-slate-500">Developer</p>
               </div>
-              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden cursor-pointer">
                 <img alt="User" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBApSeT7iYvc3OqCsUYfd6MfBy7G92Rm-gX3zvG_C4qbuzMbX9wHRQPQ9xVoUFSHAcjiaQ-F6uUocFrzIBrLW0bxhSyiVWwiBzU8lJ2qdu7jRNa--mKc5Asdq8HT7a27O5eINVYveqINAYVwp94yGLZNY1__gpxL1ZGYYCZvzpkOgnpkgG4XAp9cdqaOlwaungF7Bij2m9JcAFpDjKN2bd30He0IEfzlurmAaf4wRPHHUQCskkDJIv96wrUOyu7i1gMrExsidYN1WYd" />
               </div>
+              <button
+                onClick={() => setIsLoggedIn(false)}
+                className="absolute top-10 right-0 mt-2 px-4 py-2 bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg text-xs font-medium text-red-500 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                Log Out
+              </button>
             </div>
           </div>
         </div>
@@ -361,9 +466,14 @@ function App() {
         </div>
       )}
 
-      {/* Setup View (Original Content) */}
-      {interviewState === 'setup' && (
-        <main className="max-w-4xl w-full mx-auto px-6 py-12 relative z-10 flex-grow">
+      {/* Main Content Area based on Tabs */}
+      {interviewState === 'setup' && currentTab === 'dashboard' && (
+        <Dashboard setCurrentTab={setCurrentTab} />
+      )}
+
+      {/* Practice View (Original Setup Content) */}
+      {interviewState === 'setup' && currentTab === 'practice' && (
+        <main className="max-w-4xl w-full mx-auto px-6 py-12 relative z-10 flex-grow animate-in fade-in duration-300">
           <header className="mb-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium uppercase tracking-wider mb-6">
               <span className="material-symbols-outlined text-[14px]">verified</span>
@@ -376,6 +486,33 @@ function App() {
               Complete your system checks and upload your resume to begin your AI-powered technical simulation.
             </p>
           </header>
+
+          {/* User Performance Dashboard (Dummy Data) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="glass-card p-6 rounded-2xl shadow-sm bg-white dark:bg-transparent flex flex-col items-center justify-center text-center">
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center mb-3 text-blue-600 dark:text-blue-500">
+                <span className="material-symbols-outlined text-[20px]">leaderboard</span>
+              </div>
+              <p className="text-3xl font-display font-semibold text-slate-900 dark:text-white mb-1">12</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Interviews Completed</p>
+            </div>
+
+            <div className="glass-card p-6 rounded-2xl shadow-sm bg-white dark:bg-transparent flex flex-col items-center justify-center text-center">
+              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center mb-3 text-green-600 dark:text-green-500">
+                <span className="material-symbols-outlined text-[20px]">radar</span>
+              </div>
+              <p className="text-3xl font-display font-semibold text-slate-900 dark:text-white mb-1">85%</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Average Score</p>
+            </div>
+
+            <div className="glass-card p-6 rounded-2xl shadow-sm bg-white dark:bg-transparent flex flex-col items-center justify-center text-center">
+              <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center mb-3 text-orange-600 dark:text-orange-500">
+                <span className="material-symbols-outlined text-[20px]">local_fire_department</span>
+              </div>
+              <p className="text-3xl font-display font-semibold text-slate-900 dark:text-white mb-1">3 Days</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Current Streak</p>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="md:col-span-7">
