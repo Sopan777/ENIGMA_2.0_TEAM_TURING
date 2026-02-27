@@ -1,0 +1,51 @@
+﻿diff --git a/stitch-react-app/src/App.jsx b/stitch-react-app/src/App.jsx
+index 67d1b54..e14b263 100644
+--- a/stitch-react-app/src/App.jsx
++++ b/stitch-react-app/src/App.jsx
+@@ -1,5 +1,8 @@
+ import React, { useState, useRef, useEffect } from 'react';
+ import Dashboard from './Dashboard';
++import InterviewChat from './InterviewChat';
++import InterviewerDashboard from './InterviewerDashboard';
++
+ function App() {
+   // Auth State
+   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+@@ -420,6 +423,12 @@ function App() {
+                 >
+                   History
+                 </button>
++                <button
++                  onClick={() => setCurrentTab('supervision')}
++                  className={`text-sm font-medium transition-colors ${currentTab === 'supervision' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:text-blue-500'}`}
++                >
++                  Supervisor Room
++                </button>
+               </div>
+             )}
+             {interviewState === 'active' && (
+@@ -543,6 +552,12 @@ function App() {
+               )}
+             </div>
+           </div>
++          {/* AI Interview Chat Panel */}
++          <InterviewChat
++            userCode={userCode}
++            problemData={problemData}
++            isActive={interviewState === 'active'}
++          />
+         </main>
+       )}
+ 
+@@ -578,6 +593,11 @@ function App() {
+         <Dashboard setCurrentTab={setCurrentTab} />
+       )}
+ 
++      {/* Supervisor View */}
++      {interviewState === 'setup' && currentTab === 'supervision' && (
++        <InterviewerDashboard />
++      )}
++
+       {/* Practice View (Original Setup Content) */}
+       {interviewState === 'setup' && currentTab === 'practice' && (
+         <main className="max-w-4xl w-full mx-auto px-6 py-12 relative z-10 flex-grow animate-in fade-in duration-300">

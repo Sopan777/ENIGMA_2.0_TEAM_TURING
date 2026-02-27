@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
 from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.context import CryptContext
@@ -10,15 +11,12 @@ import pdfplumber
 import io
 import os
 import json
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from google import genai
-from google.genai import types
-
-os.environ["GEMINI_API_KEY"] = "AIzaSyCHFvdwESWRl-w2bza98KgtURYke0uEqUo"
-client = genai.Client()
+from llm_manager import generate_content_with_fallback
 
 app = FastAPI(title="Resume Parser API")
 
@@ -31,6 +29,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Serve generated avatar videos
+media_dir = Path(__file__).parent / "generated_media"
+media_dir.mkdir(exist_ok=True)
+app.mount("/media", StaticFiles(directory=str(media_dir)), name="media")
+
+# Serve avatar image
+from fastapi.responses import FileResponse
+avatar_path = Path(__file__).parent / "avatar.png"
+
+@app.get("/avatar.png")
+async def get_avatar():
+    if avatar_path.exists():
+        return FileResponse(str(avatar_path), media_type="image/png")
+    raise HTTPException(status_code=404, detail="Avatar not found")
+
+from chat_routes import router as chat_router
+app.include_router(chat_router)
+
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 client_mongo = AsyncIOMotorClient(MONGODB_URI, serverSelectionTimeoutMS=5000, tlsAllowInvalidCertificates=True)
 db = client_mongo.interview_app_db
@@ -39,7 +55,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt_sha256"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -142,14 +158,8 @@ Respond strictly in JSON format matching this schema:
 }}
 """
     try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-            ),
-        )
-        data = json.loads(response.text)
+        response_text = await generate_content_with_fallback(prompt, expect_json=True)
+        data = json.loads(response_text)
         return GenerateResponse(**data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI Generation Failed: {str(e)}")
@@ -171,14 +181,8 @@ Respond strictly in JSON format matching this schema:
 }}
 """
     try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-            ),
-        )
-        data = json.loads(response.text)
+        response_text = await generate_content_with_fallback(prompt, expect_json=True)
+        data = json.loads(response_text)
         return EvaluateResponse(**data)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI Evaluation Failed: {str(e)}")

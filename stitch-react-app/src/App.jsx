@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Dashboard from './Dashboard';
+import InterviewChat from './InterviewChat';
+import InterviewerDashboard from './InterviewerDashboard';
+
 function App() {
   // Auth State
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -420,6 +423,12 @@ function App() {
                 >
                   History
                 </button>
+                <button
+                  onClick={() => setCurrentTab('supervision')}
+                  className={`text-sm font-medium transition-colors ${currentTab === 'supervision' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:text-blue-500'}`}
+                >
+                  Supervisor Room
+                </button>
               </div>
             )}
             {interviewState === 'active' && (
@@ -543,6 +552,13 @@ function App() {
               )}
             </div>
           </div>
+          {/* AI Interview Chat Panel */}
+          <InterviewChat
+            userCode={userCode}
+            problemData={problemData}
+            isActive={interviewState === 'active'}
+            resumeData={parsedData}
+          />
         </main>
       )}
 
@@ -576,6 +592,11 @@ function App() {
       {/* Main Content Area based on Tabs */}
       {interviewState === 'setup' && currentTab === 'dashboard' && (
         <Dashboard setCurrentTab={setCurrentTab} />
+      )}
+
+      {/* Supervisor View */}
+      {interviewState === 'setup' && currentTab === 'supervision' && (
+        <InterviewerDashboard />
       )}
 
       {/* Practice View (Original Setup Content) */}

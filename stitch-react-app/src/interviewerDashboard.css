@@ -1,0 +1,248 @@
+.dashboard-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+.dashboard-login {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    justify-content: center;
+    background-color: #0f172a;
+}
+
+.dashboard-login-card {
+    background: #1e293b;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 400px;
+    color: #fff;
+}
+
+.dashboard-login-card h2 {
+    margin-top: 0;
+    color: #38bdf8;
+    font-size: 24px;
+}
+
+.dashboard-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.dashboard-form input {
+    padding: 12px;
+    font-size: 24px;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid #334155;
+    background: #0f172a;
+    color: #fff;
+    letter-spacing: 4px;
+    outline: none;
+}
+
+.dashboard-form input:focus {
+    border-color: #38bdf8;
+}
+
+.dashboard-form button {
+    padding: 14px;
+    background-color: #38bdf8;
+    color: #0f172a;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dashboard-form button:hover {
+    background-color: #0284c7;
+    color: white;
+}
+
+.dashboard-error {
+    color: #ef4444;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+/* Sidebar */
+
+.dashboard-sidebar {
+    width: 320px;
+    background: #1e293b;
+    border-right: 1px solid #334155;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 15px;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #e2e8f0;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-badge.active {
+    background: #064e3b;
+    color: #34d399;
+}
+
+.status-badge.ended {
+    background: #475569;
+    color: #cbd5e1;
+}
+
+.sidebar-section h4 {
+    margin: 0 0 10px 0;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-section p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.alert-box {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.alert-box ul {
+    margin: 8px 0 0 0;
+    padding-left: 18px;
+}
+
+.alert-box li {
+    margin-bottom: 4px;
+}
+
+.browser-alert {
+    background: #451a03;
+    color: #fcd34d;
+    border: 1px solid #78350f;
+}
+
+.proctor-alert {
+    background: #450a0a;
+    color: #fca5a5;
+    border: 1px solid #7f1d1d;
+}
+
+.safe-alert {
+    background: #064e3b;
+    color: #6ee7b7;
+    border: 1px solid #065f46;
+}
+
+/* Main Area */
+
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+}
+
+.dashboard-editor-panel {
+    flex: 2;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dashboard-transcript-panel {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    background: #334155;
+    padding: 10px 15px;
+}
+
+.panel-header h4 {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 14px;
+}
+
+.live-code-view {
+    margin: 0;
+    padding: 15px;
+    flex: 1;
+    overflow: auto;
+    font-family: 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    color: #38bdf8;
+    background: #0f172a;
+}
+
+.transcript-list {
+    padding: 15px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.transcript-item {
+    background: #334155;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #f1f5f9;
+}
+
+.empty-text {
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+    margin-top: 20px;
+}
